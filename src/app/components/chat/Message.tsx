@@ -34,6 +34,14 @@ function MessageComponent({ role, content, onSpeakMessage, isSpeaking, id }: Mes
         setDisplayContent(content.replace("[TRAVEL_ITINERARY]", ""));
       } else {
         setDisplayContent(content);
+        
+        // Only perform itinerary detection once per message
+        if (!messageCheckedRef.current) {
+          messageCheckedRef.current = true;
+          if (containsItinerary(content)) {
+            setShowDownloadButton(true);
+          }
+        }
       }
     }
   }, [content, isUser]);
