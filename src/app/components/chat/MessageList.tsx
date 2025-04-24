@@ -81,10 +81,10 @@ export default function MessageList({ messages, isLoading, onSelectPrompt }: Mes
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full max-h-full overflow-hidden">
       {/* Auto-speak toggle button */}
       {isSpeechSupported && (
-        <div className="flex justify-end p-2">
+        <div className="flex justify-end p-2 flex-shrink-0">
           <button 
             onClick={toggleAutoSpeak}
             className={`p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 ${

@@ -24,7 +24,7 @@ export default function Header({ onToggleSidebar }: { onToggleSidebar?: () => vo
   }, []);
   
   return (
-    <header className="p-4 bg-white border-b border-gray-200 shadow-sm flex justify-between items-center">
+    <header className="p-4 bg-white border-b border-gray-200 shadow-sm flex justify-between items-center flex-shrink-0 h-16">
       <div className="flex items-center">
         {isMobile && onToggleSidebar && (
           <button 

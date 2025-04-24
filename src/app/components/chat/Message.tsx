@@ -34,15 +34,6 @@ function MessageComponent({ role, content, onSpeakMessage, isSpeaking, id }: Mes
         setDisplayContent(content.replace("[TRAVEL_ITINERARY]", ""));
       } else {
         setDisplayContent(content);
-        
-        // Still check using regular detection as backup
-        if (!messageCheckedRef.current) {
-          messageCheckedRef.current = true;
-          // Use a small timeout to avoid synchronous state updates in render cycles
-          setTimeout(() => {
-            setShowDownloadButton(containsItinerary(content));
-          }, 100);
-        }
       }
     }
   }, [content, isUser]);
@@ -65,7 +56,7 @@ function MessageComponent({ role, content, onSpeakMessage, isSpeaking, id }: Mes
           max-w-xs md:max-w-md lg:max-w-2xl px-4 py-3 rounded-lg shadow
           ${isUser ? 'bg-blue-500 text-white' : 'bg-white text-gray-800 border border-gray-200'}
           ${!isUser && (showDownloadButton || onSpeakMessage) ? 'relative pb-12' : ''}
-          overflow-hidden
+          overflow-hidden break-words
         `}
       >
         <span className="block text-sm font-medium mb-2 capitalize">
@@ -73,8 +64,8 @@ function MessageComponent({ role, content, onSpeakMessage, isSpeaking, id }: Mes
         </span>
         <div 
           ref={contentRef}
-          className={`text-sm ${isUser ? 'prose-invert' : 'prose'} prose-sm max-w-none overflow-auto`}
-          style={{ maxHeight: '60vh', overflowY: 'auto' }}
+          className={`text-sm ${isUser ? 'prose-invert' : 'prose'} prose-sm max-w-none break-words`}
+          style={{ wordWrap: 'break-word' }}
         >
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
