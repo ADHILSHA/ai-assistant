@@ -22,6 +22,8 @@ export default function ChatPage() {
   // To track when we're expecting a response
   const waitingForResponseRef = useRef(false);
   const initialRenderRef = useRef(true);
+  // Add a ref to track the last processed message ID
+  const lastProcessedMessageIdRef = useRef<string | null>(null);
   
   // Add state for sidebar visibility on mobile
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -85,12 +87,11 @@ export default function ChatPage() {
     if (messages.length > 0 && !isLoading) {
       const lastMessage = messages[messages.length - 1];
       
-      // If the last message is from the assistant, save it
-      if (lastMessage.role === 'assistant') {
-        // If we're waiting for a response or if this is a new message we haven't processed yet
-        if (waitingForResponseRef.current || !currentMessages.some(m => 
-          m.id === lastMessage.id && m.content === lastMessage.content)
-        ) {
+      // If the last message is from the assistant and we're waiting for a response
+      // Only process messages when we're actually waiting for a response
+      if (lastMessage.role === 'assistant' && waitingForResponseRef.current) {
+        // Check if we've already processed this message
+        if (lastMessage.id !== lastProcessedMessageIdRef.current) {
           console.log('Saving assistant message to chat store:', lastMessage);
           addMessageToChat({
             id: lastMessage.id || Date.now().toString(),
@@ -99,12 +100,14 @@ export default function ChatPage() {
             createdAt: new Date().toISOString()
           });
           
+          // Remember that we've processed this message
+          lastProcessedMessageIdRef.current = lastMessage.id;
           // No longer waiting for a response
           waitingForResponseRef.current = false;
         }
       }
     }
-  }, [messages, isLoading, addMessageToChat, currentMessages]);
+  }, [messages, isLoading, addMessageToChat]);
 
   // Custom handleSubmit that also updates chat history
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
