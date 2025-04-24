@@ -38,7 +38,7 @@ export default function ChatInput({
   return (
     <form onSubmit={handleSubmit} className="flex items-center space-x-2">
       <input
-        className="flex-grow w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        className="flex-grow w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 bg-white text-gray-900"
         value={input}
         placeholder={isListening ? "Listening..." : "Type your message or use the buttons above ✨"}
         onChange={handleInputChange}
@@ -58,7 +58,7 @@ export default function ChatInput({
           className={`p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer ${
             isListening 
               ? 'bg-red-600 text-white hover:bg-red-700' 
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
           disabled={isLoading}
           aria-label={isListening ? "Stop listening" : "Start voice input"}

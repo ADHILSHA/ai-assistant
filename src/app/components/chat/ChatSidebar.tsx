@@ -68,8 +68,8 @@ export default function ChatSidebar({ isOpen = false, onClose }: { isOpen?: bool
   const sidebarClasses = isMobile
     ? `fixed inset-y-0 left-0 transform ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
-      } w-64 transition-transform duration-300 ease-in-out z-30 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto h-screen`
-    : 'w-64 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 h-screen overflow-y-auto';
+      } w-64 transition-transform duration-300 ease-in-out z-30 bg-gray-50 border-r border-gray-200 overflow-y-auto h-screen`
+    : 'w-64 border-r border-gray-200 bg-gray-50 h-screen overflow-y-auto';
 
   // Add overlay for mobile
   const overlayClasses = isMobile && isOpen
@@ -91,7 +91,7 @@ export default function ChatSidebar({ isOpen = false, onClose }: { isOpen?: bool
       <div className="mt-4">
         <button
           onClick={handleClearAllChats}
-          className="w-full cursor-pointer py-2 px-3 border border-gray-400/40 text-gray-600 dark:text-gray-300 text-sm rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-center gap-1.5"
+          className="w-full cursor-pointer py-2 px-3 border border-gray-400/40 text-gray-600 text-sm rounded-lg hover:bg-gray-200/50 transition-colors flex items-center justify-center gap-1.5"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
@@ -104,7 +104,7 @@ export default function ChatSidebar({ isOpen = false, onClose }: { isOpen?: bool
         <div className="mt-4">
           <button
             onClick={onClose}
-            className="w-full py-2 px-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1.5"
+            className="w-full py-2 px-3 bg-gray-200 text-gray-800 text-sm rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center gap-1.5"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6L6 18M6 6l12 12"></path>
@@ -115,11 +115,11 @@ export default function ChatSidebar({ isOpen = false, onClose }: { isOpen?: bool
       )}
       
       <div className="mt-6">
-        <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+        <h2 className="text-sm font-medium text-gray-500 mb-2">
           Chat History ({uniqueChats.length})
         </h2>
         {uniqueChats.length === 0 ? (
-          <div className="text-gray-500 dark:text-gray-400 text-sm text-center">
+          <div className="text-gray-500 text-sm text-center">
             No chat history yet
           </div>
         ) : (

@@ -169,7 +169,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Pass isOpen and onClose props to ChatSidebar */}
       <ChatSidebar 
         isOpen={isSidebarOpen} 
@@ -188,7 +188,7 @@ export default function ChatPage() {
           />
         </div>
         
-        <footer className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-inner flex-shrink-0">
+        <footer className="p-4 bg-white border-t border-gray-200 shadow-inner flex-shrink-0">
           {error && <ErrorMessage message={error.message} />}
           <ChatInput 
             input={input}
