@@ -19,55 +19,58 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // This first effect only runs once on mount to avoid hydration mismatch
   useEffect(() => {
     // Check for saved theme in localStorage
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    
-    // Check user preference if no saved theme
-    if (!savedTheme) {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
-      localStorage.setItem('theme', prefersDark ? 'dark' : 'light');
-    } else {
-      setTheme(savedTheme);
+    try {
+      const savedTheme = localStorage.getItem('theme') as Theme | null;
+      
+      // Check user preference if no saved theme
+      if (!savedTheme) {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setTheme(prefersDark ? 'dark' : 'light');
+        localStorage.setItem('theme', prefersDark ? 'dark' : 'light');
+      } else {
+        setTheme(savedTheme);
+      }
+    } catch (error) {
+      console.error('Error accessing localStorage for theme:', error);
     }
+    
     setMounted(true);
   }, []);
 
   // This effect updates the DOM when theme changes
   useEffect(() => {
     if (mounted) {
-      console.log('Applying theme:', theme);
-      
-      // Apply theme class to html element
-      if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-        document.documentElement.setAttribute('data-theme', 'dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.setAttribute('data-theme', 'light');
+      try {
+        // Apply theme class to html element
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('theme', theme);
+      } catch (error) {
+        console.error('Error applying theme:', error);
       }
-      
-      // Save to localStorage
-      localStorage.setItem('theme', theme);
-      
-      // Force a repaint by adding/removing a utility class
-      document.body.classList.add('theme-updated');
-      document.body.style.opacity = '0.99';
-      setTimeout(() => {
-        document.body.classList.remove('theme-updated');
-        document.body.style.opacity = '1';
-      }, 100);
     }
   }, [theme, mounted]);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    console.log(`Toggling theme from ${theme} to ${newTheme}`);
-    setTheme(newTheme);
+    try {
+      const newTheme = theme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+    } catch (error) {
+      console.error('Error toggling theme:', error);
+    }
   };
 
   // Prevent flash of wrong theme by hiding content until mounted
+  // Return a simple div to avoid hydration mismatches
   if (!mounted) {
-    return <>{children}</>;
+    return <div style={{ visibility: 'hidden' }}>{children}</div>;
   }
 
   return (
@@ -100,8 +103,6 @@ const defaultToggleTheme = () => {
     const current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
     const newTheme = current === 'dark' ? 'light' : 'dark';
     
-    console.log(`Fallback toggling theme from ${current} to ${newTheme}`);
-    
     if (newTheme === 'dark') {
       document.documentElement.classList.add('dark');
       document.documentElement.setAttribute('data-theme', 'dark');
@@ -111,14 +112,6 @@ const defaultToggleTheme = () => {
     }
     
     localStorage.setItem('theme', newTheme);
-    
-    // Force a repaint
-    document.body.classList.add('theme-updated');
-    document.body.style.opacity = '0.99';
-    setTimeout(() => {
-      document.body.classList.remove('theme-updated');
-      document.body.style.opacity = '1';
-    }, 100);
   } catch (e) {
     console.error('Error toggling theme:', e);
   }

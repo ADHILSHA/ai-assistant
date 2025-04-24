@@ -25,53 +25,60 @@ export function useChatHistory() {
   const dispatch = useAppDispatch();
   const { history, currentChatId } = useAppSelector((state) => state.chat);
   const isInitialLoad = useRef(true); // Flag to prevent re-loading from localStorage after initial mount
+  const isBrowser = typeof window !== 'undefined'; // Check if we're in a browser environment
 
   // Load chat history from localStorage on initial mount
   useEffect(() => {
+    // Skip if running on server
+    if (!isBrowser) return;
+    
     // Only run this effect once on initial mount
     if (!isInitialLoad.current) {
       return;
     }
     isInitialLoad.current = false; // Mark initial load as done
 
-    const savedHistory = localStorage.getItem('chatHistory');
-    // Only load if Redux state is empty AND there's saved data
-    if (savedHistory && history.length === 0) {
-      try {
-        const parsed = JSON.parse(savedHistory);
+    try {
+      const savedHistory = localStorage.getItem('chatHistory');
+      // Only load if Redux state is empty AND there's saved data
+      if (savedHistory && history.length === 0) {
+        try {
+          const parsed = JSON.parse(savedHistory);
 
-        // Validate parsed structure slightly
-        if (parsed && Array.isArray(parsed.history)) {
-          // Restore the entire history and currentChatId
-          // Assumes setEntireHistory correctly handles the payload
-          dispatch(setEntireHistory({
-            // Ensure dates are potentially rehydrated if needed, although ISO strings should be fine
-            history: parsed.history.map((chat: ChatHistoryItem) => ({
-                ...chat,
-                // Optional: Re-parse dates if they were stored differently, but ISO strings are preferred
-                // createdAt: new Date(chat.createdAt),
-                messages: chat.messages.map((msg: ChatMessage) => ({
-                    ...msg,
-                    // createdAt: new Date(msg.createdAt)
-                }))
-            })),
-            currentChatId: parsed.currentChatId || null // Ensure currentChatId is null if not present
-          }));
-           console.log('Restored chat history from localStorage.');
-        } else {
-           console.warn('Failed to restore chat history: Invalid format found in localStorage.');
-           localStorage.removeItem('chatHistory');
+          // Validate parsed structure slightly
+          if (parsed && Array.isArray(parsed.history)) {
+            // Restore the entire history and currentChatId
+            dispatch(setEntireHistory({
+              // Ensure dates are potentially rehydrated if needed, although ISO strings should be fine
+              history: parsed.history.map((chat: ChatHistoryItem) => ({
+                  ...chat,
+                  messages: chat.messages.map((msg: ChatMessage) => ({
+                      ...msg,
+                  }))
+              })),
+              currentChatId: parsed.currentChatId || null // Ensure currentChatId is null if not present
+            }));
+            console.log('Restored chat history from localStorage.');
+          } else {
+            console.warn('Failed to restore chat history: Invalid format found in localStorage.');
+            localStorage.removeItem('chatHistory');
+          }
+        } catch (error) {
+          console.error('Failed to parse or restore chat history:', error);
+          // If restoration fails, clear potentially corrupted localStorage
+          localStorage.removeItem('chatHistory');
         }
-      } catch (error) {
-        console.error('Failed to parse or restore chat history:', error);
-        // If restoration fails, clear potentially corrupted localStorage
-        localStorage.removeItem('chatHistory');
       }
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
     }
-  }, [dispatch, history.length]); // Dependency on history.length ensures it runs if state is cleared externally
+  }, [dispatch, history.length, isBrowser]); // Add isBrowser to dependencies
 
   // Save chat history to localStorage whenever it changes
   useEffect(() => {
+    // Skip if running on server
+    if (!isBrowser) return;
+    
     // Debounce saving to avoid performance issues during rapid changes
     const timeout = setTimeout(() => {
       // Prevent saving during the very initial load/hydration phase before history is potentially populated
@@ -79,25 +86,28 @@ export function useChatHistory() {
          return;
       }
 
-      if (history.length > 0) {
-        // Save the state exactly as it is in Redux, preserving its order
-        const stateToSave = {
-          history: history, // No sorting here!
-          currentChatId
-        };
-        localStorage.setItem('chatHistory', JSON.stringify(stateToSave));
-        // console.log('Saved chat history to localStorage:', stateToSave); // Verbose logging, maybe remove for production
-      } else {
-        // Clean up localStorage if all chats are deleted
-        if (localStorage.getItem('chatHistory')) {
-          localStorage.removeItem('chatHistory');
-          console.log('Removed chat history from localStorage as it is empty.');
+      try {
+        if (history.length > 0) {
+          // Save the state exactly as it is in Redux, preserving its order
+          const stateToSave = {
+            history: history, // No sorting here!
+            currentChatId
+          };
+          localStorage.setItem('chatHistory', JSON.stringify(stateToSave));
+        } else {
+          // Clean up localStorage if all chats are deleted
+          if (localStorage.getItem('chatHistory')) {
+            localStorage.removeItem('chatHistory');
+            console.log('Removed chat history from localStorage as it is empty.');
+          }
         }
+      } catch (error) {
+        console.error('Error saving to localStorage:', error);
       }
     }, 500); // 500ms debounce
 
     return () => clearTimeout(timeout); // Cleanup timeout on unmount or dependency change
-  }, [history, currentChatId]); // Run whenever history or currentChatId changes
+  }, [history, currentChatId, isBrowser]); // Add isBrowser to dependencies
 
   // Memoize current messages calculation (optional but good practice)
   const currentChat = history.find(chat => chat.id === currentChatId);

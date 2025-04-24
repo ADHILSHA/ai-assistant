@@ -36,6 +36,28 @@ const generateChatTitle = (messageContent: string): string => {
     : title || "Untitled Chat"; // Add fallback for empty messages
 };
 
+// Helper to validate a chat message
+const isValidMessage = (message: unknown): message is ChatMessage => {
+  if (!message || typeof message !== 'object' || message === null) return false;
+  
+  const msg = message as Record<string, unknown>;
+  return typeof msg.id === 'string' && 
+    (msg.role === 'user' || msg.role === 'assistant' || msg.role === 'system') &&
+    typeof msg.content === 'string' &&
+    typeof msg.createdAt === 'string';
+};
+
+// Helper to validate a chat history item
+const isValidChat = (chat: unknown): chat is ChatHistoryItem => {
+  if (!chat || typeof chat !== 'object' || chat === null) return false;
+  
+  const chatItem = chat as Record<string, unknown>;
+  return typeof chatItem.id === 'string' &&
+    typeof chatItem.title === 'string' &&
+    Array.isArray(chatItem.messages) &&
+    typeof chatItem.createdAt === 'string';
+};
+
 export const chatSlice = createSlice({
   name: 'chat',
   initialState,
@@ -43,7 +65,7 @@ export const chatSlice = createSlice({
     startNewChat: (state, action: PayloadAction<ChatMessage>) => {
       const initialMessage = action.payload;
       // Ensure the message has essential fields (caller should guarantee this)
-      if (!initialMessage || !initialMessage.id || !initialMessage.createdAt) {
+      if (!isValidMessage(initialMessage)) {
         console.error('startNewChat called with invalid initial message:', initialMessage);
         return; // Don't proceed if message is malformed
       }
@@ -58,12 +80,9 @@ export const chatSlice = createSlice({
         createdAt: new Date().toISOString(), // Use current time for chat creation
       };
 
-      // Remove the complex duplicate chat check based on title. Just add the new one.
       // Add the new chat to the beginning of the history array
       state.history.unshift(newChat);
       state.currentChatId = chatId; // Set the new chat as the current one
-
-      // NO sorting here - maintain insertion order (newest first via unshift)
     },
 
     clearCurrentChat: (state) => {
@@ -74,9 +93,9 @@ export const chatSlice = createSlice({
       const messageToAdd = action.payload;
 
       // Ensure message is valid
-      if (!messageToAdd || !messageToAdd.id || !messageToAdd.createdAt) {
-         console.error('addMessageToChat called with invalid message:', messageToAdd);
-         return;
+      if (!isValidMessage(messageToAdd)) {
+        console.error('addMessageToChat called with invalid message:', messageToAdd);
+        return;
       }
 
       if (state.currentChatId) {
@@ -90,16 +109,8 @@ export const chatSlice = createSlice({
           const messageExists = chat.messages.some(m => m.id === messageToAdd.id);
 
           if (!messageExists) {
-            // Immer handles this mutation safely on the draft state
-            // Ensure we are pushing a *copy* if there's any doubt about the payload source
-            // Although Immer should handle payload correctly, being explicit can sometimes help debug complex issues.
-            // Let's try pushing the direct payload first as it *should* work.
-            // chat.messages.push(messageToAdd);
-
-            // **If the problem persists:** Un-comment the below line and comment out the above `push`.
-            // This explicitly creates a shallow copy, breaking any potential external references to the payload object.
+            // Create a new object to break any potential references
             chat.messages.push({ ...messageToAdd });
-
           } else {
             console.warn(`Message with ID ${messageToAdd.id} already exists in chat ${state.currentChatId}. Skipping.`);
           }
@@ -108,8 +119,6 @@ export const chatSlice = createSlice({
         }
       } else {
         console.warn('addMessageToChat called but no currentChatId is set.');
-        // Optionally, you could redirect to startNewChat if that's desired behavior
-        // For now, just log a warning as per the hook's logic.
       }
     },
 
@@ -137,7 +146,7 @@ export const chatSlice = createSlice({
           state.currentChatId = null;
         }
       } else if (state.history.length === initialLength) {
-         console.warn(`deleteChat: Chat with ID ${idToDelete} not found.`);
+        console.warn(`deleteChat: Chat with ID ${idToDelete} not found.`);
       }
     },
 
@@ -150,27 +159,38 @@ export const chatSlice = createSlice({
       history: ChatHistoryItem[], // Use the interface
       currentChatId: string | null
     }>) => {
-      // Directly assign the loaded history. Assume the source (localStorage) has the desired order.
-      // Ensure the loaded data conforms to the expected types (basic check)
-      if (Array.isArray(action.payload.history)) {
-          state.history = action.payload.history;
+      try {
+        // Validate the history array first
+        if (Array.isArray(action.payload.history)) {
+          // Filter out any invalid chat items
+          const validHistory = action.payload.history.filter(chat => isValidChat(chat));
+          
+          // Ensure messages within each chat are valid
+          validHistory.forEach(chat => {
+            chat.messages = chat.messages.filter(msg => isValidMessage(msg));
+          });
+          
+          state.history = validHistory;
+          
           // Validate and set currentChatId
           const newCurrentId = action.payload.currentChatId;
           if (newCurrentId && state.history.some(chat => chat.id === newCurrentId)) {
-              state.currentChatId = newCurrentId;
+            state.currentChatId = newCurrentId;
           } else if (state.history.length > 0) {
-              // If saved currentId is invalid or null, default to the first chat in the loaded history
-              state.currentChatId = state.history[0].id;
+            // If saved currentId is invalid or null, default to the first chat in the loaded history
+            state.currentChatId = state.history[0].id;
           } else {
-              state.currentChatId = null; // No chats, no currentId
+            state.currentChatId = null; // No chats, no currentId
           }
-      } else {
+        } else {
           console.error("setEntireHistory received invalid history data:", action.payload.history);
-          // Optionally reset to initial state or keep existing state
-          // state.history = [];
-          // state.currentChatId = null;
+        }
+      } catch (error) {
+        console.error("Error in setEntireHistory:", error);
+        // Reset to initial state in case of critical error
+        state.history = [];
+        state.currentChatId = null;
       }
-      // NO sorting here - preserve loaded order
     }
   },
 });
