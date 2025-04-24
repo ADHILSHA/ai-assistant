@@ -8,7 +8,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 // Optional: Set the runtime to edge for potentially lower latency
 // export const runtime = 'edge';
 
-// Ensure the API key is available
+// API Key of Open AI
 const openaiApiKey = process.env.OPENAI_API_KEY;
 if (!openaiApiKey) {
     throw new Error("Missing environment variable OPENAI_API_KEY");
@@ -20,11 +20,11 @@ const openaiProvider = createOpenAI({
 
 export async function POST(req: Request) {
     try {
-        // 1. Extract messages from the request body
+        // Extract messages from the request body
         const body = await req.json();
         const incomingMessages: Message[] = body.messages || [];
 
-        // 2. Validate messages format (basic check)
+        // Validate messages format (basic check)
         if (!Array.isArray(incomingMessages)) {
             return NextResponse.json(
                 { error: 'Invalid messages format. Expected an array.' },
@@ -32,12 +32,12 @@ export async function POST(req: Request) {
             );
         }
 
-        // 3. Prepare messages for OpenAI API
+        // Prepare messages for OpenAI API
         //    - Add the system prompt
         //    - Ensure roles are correct ('user' or 'assistant')
         const messagesForAPI = incomingMessages.filter(msg => msg.role === 'user' || msg.role === 'assistant');
 
-        // 4. Request the OpenAI API for the response stream and convert to stream response
+        // Request the OpenAI API for the response stream and convert to stream response
         const result = streamText({
             model: openaiProvider('gpt-3.5-turbo'),
             system: SYSTEM_PROMPT,
@@ -56,7 +56,6 @@ export async function POST(req: Request) {
         if (error.response) {
              console.error("OpenAI Error Status:", error.response.status);
              console.error("OpenAI Error Data:", error.response.data);
-             // You might want to return a more specific error message based on status
         }
 
         // Return a generic internal server error response
