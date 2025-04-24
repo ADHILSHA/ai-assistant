@@ -57,6 +57,9 @@ export const chatSlice = createSlice({
       
       state.history.unshift(newChat);
       state.currentChatId = chatId;
+      
+      // Ensure history is sorted by createdAt (newest first)
+      state.history.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     },
     clearCurrentChat: (state) => {
       state.currentChatId = null;
@@ -89,6 +92,16 @@ export const chatSlice = createSlice({
       state.history = [];
       state.currentChatId = null;
       // This will help reset everything if the history gets corrupted
+    },
+    setEntireHistory: (state, action: PayloadAction<{
+      history: ChatState['history'],
+      currentChatId: string | null
+    }>) => {
+      // Replace entire state with saved history, ensuring it's sorted
+      state.history = action.payload.history.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      state.currentChatId = action.payload.currentChatId;
     }
   },
 });
@@ -99,6 +112,7 @@ export const {
   loadChat, 
   deleteChat,
   clearAllChats,
-  clearCurrentChat
+  clearCurrentChat,
+  setEntireHistory
 } = chatSlice.actions;
 export default chatSlice.reducer; 

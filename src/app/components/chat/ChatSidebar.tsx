@@ -51,8 +51,9 @@ export default function ChatSidebar() {
     );
   }
 
-  // Create a deduplicated list to avoid React key errors
-  const uniqueChats = [...new Map(history.map(chat => [chat.id, chat])).values()];
+  // Create a deduplicated and sorted list of chats
+  const uniqueChats = [...new Map(history.map(chat => [chat.id, chat])).values()]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return (
     <div className="w-64 p-4 border-r border-gray-200 bg-gray-50 h-screen overflow-y-auto">

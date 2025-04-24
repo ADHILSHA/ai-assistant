@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { startNewChat, addMessageToChat, loadChat, deleteChat } from '../redux/chatSlice';
+import { startNewChat, addMessageToChat, loadChat, deleteChat, setEntireHistory } from '../redux/chatSlice';
 
 // Define the ChatMessage interface
 export interface ChatMessage {
@@ -32,25 +32,13 @@ export function useChatHistory() {
       try {
         const parsed = JSON.parse(savedHistory);
         
-        // If there's history, restore it
+        // If there's history, restore it all at once
         if (parsed.history?.length > 0) {
-          // We'll restore it all at once to avoid rendering issues
-          for (const chat of parsed.history) {
-            if (chat.messages.length > 0) {
-              dispatch(startNewChat(chat.messages[0]));
-              // Add remaining messages for this chat
-              if (chat.messages.length > 1) {
-                for (let i = 1; i < chat.messages.length; i++) {
-                  dispatch(addMessageToChat(chat.messages[i]));
-                }
-              }
-            }
-          }
-          
-          // Set current chat
-          if (parsed.currentChatId) {
-            dispatch(loadChat(parsed.currentChatId));
-          }
+          // Use the new reducer to set the entire history at once
+          dispatch(setEntireHistory({
+            history: parsed.history,
+            currentChatId: parsed.currentChatId
+          }));
         }
       } catch (error) {
         console.error('Failed to restore chat history:', error);
@@ -62,16 +50,23 @@ export function useChatHistory() {
   
   // Save chat history to localStorage when it changes
   useEffect(() => {
-    if (history.length > 0) {
-      // Debounce saving to avoid performance issues
-      const timeout = setTimeout(() => {
-        const state = { history, currentChatId };
+    // Debounce saving to avoid performance issues
+    const timeout = setTimeout(() => {
+      // Only save if we have history
+      if (history.length > 0) {
+        const state = { 
+          history: [...history].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+          currentChatId 
+        };
         localStorage.setItem('chatHistory', JSON.stringify(state));
         console.log('Saved chat history to localStorage:', state);
-      }, 500);
-      
-      return () => clearTimeout(timeout);
-    }
+      } else if (localStorage.getItem('chatHistory')) {
+        // Clean up localStorage if all chats are deleted
+        localStorage.removeItem('chatHistory');
+      }
+    }, 500);
+    
+    return () => clearTimeout(timeout);
   }, [history, currentChatId]);
   
   // Return current chat messages if there's an active chat
