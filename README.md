@@ -1,8 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Personal Recommendation Assistant
+
+A modern, AI-powered recommendation system built with Next.js that specializes in providing personalized travel itineraries and gift recommendations.
+
+## Features
+
+- **Travel Itinerary Planning**: Get customized travel plans for any destination based on your preferences, budget, and timeframe
+- **Gift Recommendations**: Find the perfect gift for any occasion, person, or budget
+- **Chat Interface**: Intuitive chat-based interaction for natural conversations
+- **Voice Chat**: Hands-free interaction using voice commands and text-to-speech responses
+- **History Management**: Save and continue previous recommendation sessions
+- **Dark/Light Mode**: Interface adapts to your preferred viewing mode
+
+
+## Tech Stack
+
+- **Frontend**: Next.js 14 with App Router
+- **Styling**: Tailwind CSS
+- **State Management**: Redux
+- **Chat History**: Local storage persistence
+- **Voice Recognition**: Web Speech API for voice input and output
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ 
+- npm, yarn, or pnpm
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/recommendation-bot.git
+cd recommendation-bot
+
+# Install dependencies
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+### Development
 
 ```bash
 npm run dev
@@ -10,28 +50,20 @@ npm run dev
 yarn dev
 # or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Start a new chat from the homepage
+2. Choose between travel itinerary planning or gift recommendation assistance
+3. Use the microphone button to activate voice mode and speak your requests
+4. For travel: Specify destination, budget, duration, and interests
+5. For gifts: Describe the recipient, occasion, budget, and preferences
+6. Receive personalized recommendations based on your inputs, with optional voice readout
+7. Continue previous chats from the homepage if you have existing history
 
-## Learn More
+## License
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# ai-assistant
+MIT
