@@ -1,10 +1,14 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, memo } from 'react';
 import { Message as AIMessage } from '@ai-sdk/react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { containsItinerary, generatePdfFromElement } from '@/app/lib/pdf-utils';
+import { FaVolumeUp, FaVolumeMute, FaFileDownload } from 'react-icons/fa';
 
-type MessageProps = AIMessage;
+interface MessageProps extends AIMessage {
+  onSpeakMessage?: () => void;
+  isSpeaking?: boolean;
+}
 
 // Define the props type for markdown components
 interface MarkdownComponentProps {
@@ -14,32 +18,54 @@ interface MarkdownComponentProps {
   children?: React.ReactNode;
 }
 
-export default function Message({ role, content }: MessageProps) {
+function MessageComponent({ role, content, onSpeakMessage, isSpeaking, id }: MessageProps) {
   const isUser = role === 'user';
   const contentRef = useRef<HTMLDivElement>(null);
   const [showDownloadButton, setShowDownloadButton] = useState(false);
+  const [displayContent, setDisplayContent] = useState(content);
+  const messageCheckedRef = useRef(false);
   
-  // Check if the message contains an itinerary when content changes
+  // Process content to hide the marker and detect itinerary
   useEffect(() => {
     if (!isUser && content) {
-      setShowDownloadButton(containsItinerary(content));
+      // Check for marker and remove it from display content
+      if (content.includes("[TRAVEL_ITINERARY]")) {
+        setShowDownloadButton(true);
+        setDisplayContent(content.replace("[TRAVEL_ITINERARY]", ""));
+      } else {
+        setDisplayContent(content);
+        
+        // Still check using regular detection as backup
+        if (!messageCheckedRef.current) {
+          messageCheckedRef.current = true;
+          // Use a small timeout to avoid synchronous state updates in render cycles
+          setTimeout(() => {
+            setShowDownloadButton(containsItinerary(content));
+          }, 100);
+        }
+      }
     }
   }, [content, isUser]);
   
   // Handle PDF download
   const handleDownload = async () => {
     if (contentRef.current) {
-      await generatePdfFromElement(contentRef.current, 'Travel Itinerary');
+      try {
+        await generatePdfFromElement(contentRef.current, 'Travel Itinerary');
+      } catch (err) {
+        console.error('Failed to generate PDF:', err);
+      }
     }
   };
   
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
       <div
         className={`
-          max-w-md md:max-w-lg lg:max-w-2xl px-4 py-3 rounded-lg shadow
+          max-w-xs md:max-w-md lg:max-w-2xl px-4 py-3 rounded-lg shadow
           ${isUser ? 'bg-blue-500 text-white' : 'bg-white text-gray-800 border border-gray-200'}
-          ${!isUser && showDownloadButton ? 'relative pb-12' : ''}
+          ${!isUser && (showDownloadButton || onSpeakMessage) ? 'relative pb-12' : ''}
+          overflow-hidden
         `}
       >
         <span className="block text-sm font-medium mb-2 capitalize">
@@ -47,7 +73,8 @@ export default function Message({ role, content }: MessageProps) {
         </span>
         <div 
           ref={contentRef}
-          className={`text-sm ${isUser ? 'prose-invert' : 'prose'} prose-sm max-w-none`}
+          className={`text-sm ${isUser ? 'prose-invert' : 'prose'} prose-sm max-w-none overflow-auto`}
+          style={{ maxHeight: '60vh', overflowY: 'auto' }}
         >
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
@@ -65,31 +92,55 @@ export default function Message({ role, content }: MessageProps) {
               code: ({node, inline, ...props}: MarkdownComponentProps) => 
                 inline 
                   ? <code className={`px-1 py-0.5 rounded ${isUser ? 'bg-blue-600 text-blue-100' : 'bg-gray-100 text-gray-800'}`} {...props} />
-                  : <code className={`block p-2 rounded my-2 ${isUser ? 'bg-blue-600 text-blue-100' : 'bg-gray-100 text-gray-800'}`} {...props} />,
-              pre: ({node, ...props}: MarkdownComponentProps) => <pre className={`rounded p-0 my-2 ${isUser ? 'bg-blue-600' : 'bg-gray-100'}`} {...props} />,
+                  : <code className={`block p-2 rounded my-2 ${isUser ? 'bg-blue-600 text-blue-100' : 'bg-gray-100 text-gray-800'} overflow-x-auto`} {...props} />,
+              pre: ({node, ...props}: MarkdownComponentProps) => <pre className={`rounded p-0 my-2 ${isUser ? 'bg-blue-600' : 'bg-gray-100'} overflow-x-auto`} {...props} />,
               hr: ({node, ...props}: MarkdownComponentProps) => <hr className="my-3 border-t border-gray-300" {...props} />,
               table: ({node, ...props}: MarkdownComponentProps) => <table className="border-collapse table-auto w-full text-xs my-2" {...props} />,
               th: ({node, ...props}: MarkdownComponentProps) => <th className={`border py-1 px-2 ${isUser ? 'border-blue-400' : 'border-gray-300'}`} {...props} />,
               td: ({node, ...props}: MarkdownComponentProps) => <td className={`border py-1 px-2 ${isUser ? 'border-blue-400' : 'border-gray-300'}`} {...props} />
             }}
           >
-            {content}
+            {displayContent}
           </ReactMarkdown>
         </div>
         
-        {/* Download as PDF button (only show for assistant messages with itineraries) */}
-        {!isUser && showDownloadButton && (
-          <button
-            onClick={handleDownload}
-            className="absolute bottom-3 right-3 px-3 py-1.5 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 flex items-center"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Download Itinerary
-          </button>
+        {/* Buttons container for assistant messages */}
+        {!isUser && (
+          <div className="absolute bottom-3 right-3 flex space-x-2">
+            {/* Speak button */}
+            {onSpeakMessage && (
+              <button
+                onClick={onSpeakMessage}
+                className={`px-3 py-1.5 text-white text-xs rounded-md flex items-center ${
+                  isSpeaking ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+                aria-label={isSpeaking ? "Stop speaking" : "Speak message"}
+                title={isSpeaking ? "Stop speaking" : "Speak message"}
+              >
+                {isSpeaking ? <FaVolumeMute className="h-4 w-4" /> : <FaVolumeUp className="h-4 w-4" />}
+                <span className="ml-1">{isSpeaking ? 'Stop' : 'Speak'}</span>
+              </button>
+            )}
+            
+            {/* Download as PDF button (only show for assistant messages with itineraries) */}
+            {showDownloadButton && (
+              <button
+                onClick={handleDownload}
+                className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 flex items-center"
+                aria-label="Download as PDF"
+                title="Download as PDF"
+              >
+                <FaFileDownload className="h-4 w-4 mr-1" />
+                <span>Download</span>
+              </button>
+            )}
+          </div>
         )}
       </div>
     </div>
   );
-} 
+}
+
+// Use memo to prevent unnecessary re-renders
+const Message = memo(MessageComponent);
+export default Message; 

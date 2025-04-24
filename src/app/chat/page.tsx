@@ -176,6 +176,7 @@ export default function ChatPage() {
             isLoading={isLoading}
             handleInputChange={handleInputChange}
             handleSubmit={handleSubmit}
+            setInput={setInput}
           />
         </footer>
       </div>

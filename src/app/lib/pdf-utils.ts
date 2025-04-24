@@ -3,23 +3,57 @@ import html2canvas from 'html2canvas';
 
 // Check if a message content contains an itinerary
 export const containsItinerary = (content: string): boolean => {
+  // First, check for the special marker
+  if (content.includes("[TRAVEL_ITINERARY]")) {
+    return true;
+  }
+  
   // Look for common itinerary indicators
   const itineraryIndicators = [
-    "day 1",
-    "day 2",
-    "day one",
-    "day two",
-    "itinerary",
-    "travel plan",
-    "schedule",
-    "accommodation",
-    "flight",
-    "hotel booking"
+    // Day markers
+    "day 1", "day 2", "day 3", "day 4", "day 5",
+    "day one", "day two", "day three", "day four", "day five",
+    "day-1", "day-2", "day-3", "day-4", "day-5",
+    
+    // Travel terms
+    "itinerary", "travel plan", "schedule", "travel dates",
+    "destination", "destinations", "trip to", "vacation in",
+    "travel itinerary", "travel tips", "Itinerary",
+    
+    // Accommodation
+    "accommodation", "hotel", "lodging", "stay at", "resort",
+    "airbnb", "ryokan", "hostel",
+    
+    // Transportation
+    "flight", "train", "bus", "transportation", "transit",
+    "jr pass", "rail pass", "subway",
+    
+    // Financial
+    "budget", "cost", "expense", "usd", "eur", "jpy", "$",
+    
+    // Activities
+    "visit", "explore", "experience", "sightseeing", "tour",
+    "activity", "activities",
+    
+    // Travel planning
+    "travelers", "travellers", "people", "adults", "children",
+    "family", "group",
+    
+    // Cities and landmarks (generic markers)
+    "city", "landmark", "attraction", "museum", "temple",
+    "shrine", "market", "garden", "park"
   ];
 
   const lowerContent = content.toLowerCase();
-  return itineraryIndicators.some(indicator => 
-    lowerContent.includes(indicator));
+  
+  // Check for structural markers
+  const hasDayStructure = /day\s*\d+/i.test(content) || /day\s*[one|two|three|four|five]/i.test(content);
+  const hasNumberedList = /^\s*\d+\.\s/m.test(content);
+  const hasBulletPoints = /^\s*[\*\-•]\s/m.test(content);
+  
+  // Return true if structure and content match itinerary patterns
+  return itineraryIndicators.some(indicator => lowerContent.includes(indicator.toLowerCase())) ||
+         (hasNumberedList && hasBulletPoints && (lowerContent.includes('travel') || lowerContent.includes('visit')));
 };
 
 // Generate PDF from a message content element
@@ -27,6 +61,11 @@ export const generatePdfFromElement = async (element: HTMLElement, title: string
   try {
     // Create a clone of the element to avoid modifying the original
     const clonedElement = element.cloneNode(true) as HTMLElement;
+    
+    // Remove the [TRAVEL_ITINERARY] marker if it exists
+    if (clonedElement.innerHTML.includes("[TRAVEL_ITINERARY]")) {
+      clonedElement.innerHTML = clonedElement.innerHTML.replace("[TRAVEL_ITINERARY]", "");
+    }
     
     // Create a wrapper with proper padding and styling
     const wrapper = document.createElement('div');
@@ -123,6 +162,15 @@ export const generatePdfFromElement = async (element: HTMLElement, title: string
     wrapper.innerHTML = '';
     wrapper.appendChild(contentDiv);
     
+    // Add a title to the PDF
+    const titleDiv = document.createElement('h1');
+    titleDiv.style.textAlign = 'center';
+    titleDiv.style.fontSize = '24px';
+    titleDiv.style.fontWeight = 'bold';
+    titleDiv.style.marginBottom = '20px';
+    titleDiv.innerText = title;
+    contentDiv.insertBefore(titleDiv, contentDiv.firstChild);
+    
     // Temporarily append to document for rendering
     wrapper.style.position = 'absolute';
     wrapper.style.left = '-9999px';
@@ -150,29 +198,25 @@ export const generatePdfFromElement = async (element: HTMLElement, title: string
     const imgWidth = 190; // Slightly narrower for margins
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     
-    // Add title with better positioning
-    pdf.setFontSize(18);
-    pdf.text(title, 105, 20, { align: 'center' });
-    
     // Add canvas as image with proper margins
     const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 10, 30, imgWidth, imgHeight);
+    pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
     
     // If content spans multiple pages
-    if (imgHeight > 250) {
+    if (imgHeight > 270) {
       let heightLeft = imgHeight;
-      let position = 30; // starting position with margin
+      let position = 10; // starting position with margin
       
       // Remove title space for subsequent pages
-      heightLeft -= 250;
-      position += 250;
+      heightLeft -= 270;
+      position += 270;
       
       // Add new pages as needed
       while (heightLeft > 0) {
         pdf.addPage();
         pdf.addImage(imgData, 'PNG', 10, -position, imgWidth, imgHeight);
-        heightLeft -= 250;
-        position += 250;
+        heightLeft -= 270;
+        position += 270;
       }
     }
     
