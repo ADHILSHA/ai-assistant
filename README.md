@@ -25,6 +25,17 @@ A modern, AI-powered recommendation system built with Next.js that specializes i
 - **State Management**: Redux
 - **Chat History**: Local storage persistence
 - **Voice Recognition**: Web Speech API for voice input and output
+- **AI Model**: OpenAI GPT-3.5-Turbo
+
+## AI Implementation
+
+This application leverages OpenAI's GPT-3.5-Turbo model to:
+- Generate personalized travel itineraries based on user preferences
+- Recommend thoughtful gift ideas tailored to recipients and occasions
+- Maintain contextual conversations with natural language understanding
+- Process complex requirements such as budget constraints, time frames, and personal interests
+
+The model is integrated through OpenAI's API with carefully crafted prompts to ensure relevant, high-quality recommendations.
 
 ## Getting Started
 
