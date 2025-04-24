@@ -81,29 +81,30 @@ export default function ChatPage() {
 
   // Effect to capture assistant responses and save them to our store
   useEffect(() => {
-    // Don't run on initial render or when we're not waiting for a response
-    if (initialRenderRef.current || !waitingForResponseRef.current) {
-      return;
-    }
-    
     // If we have messages and we're done loading, check for an assistant message
     if (messages.length > 0 && !isLoading) {
       const lastMessage = messages[messages.length - 1];
       
       // If the last message is from the assistant, save it
       if (lastMessage.role === 'assistant') {
-        addMessageToChat({
-          id: lastMessage.id || Date.now().toString(),
-          role: 'assistant',
-          content: lastMessage.content,
-          createdAt: new Date().toISOString()
-        });
-        
-        // No longer waiting for a response
-        waitingForResponseRef.current = false;
+        // If we're waiting for a response or if this is a new message we haven't processed yet
+        if (waitingForResponseRef.current || !currentMessages.some(m => 
+          m.id === lastMessage.id && m.content === lastMessage.content)
+        ) {
+          console.log('Saving assistant message to chat store:', lastMessage);
+          addMessageToChat({
+            id: lastMessage.id || Date.now().toString(),
+            role: 'assistant',
+            content: lastMessage.content,
+            createdAt: new Date().toISOString()
+          });
+          
+          // No longer waiting for a response
+          waitingForResponseRef.current = false;
+        }
       }
     }
-  }, [messages, isLoading, addMessageToChat]);
+  }, [messages, isLoading, addMessageToChat, currentMessages]);
 
   // Custom handleSubmit that also updates chat history
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
