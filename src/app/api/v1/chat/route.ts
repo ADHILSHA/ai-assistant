@@ -1,6 +1,4 @@
 // app/api/chat/route.ts
-
-import OpenAI from 'openai';
 import { SYSTEM_PROMPT, Message } from '@/app/lib/prompts'; // Adjust path if needed
 import { NextResponse } from 'next/server';
 import { streamText } from 'ai';
@@ -49,18 +47,18 @@ export async function POST(req: Request) {
         // 5. Return the stream response
         return result.toDataStreamResponse();
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("[API_CHAT_ERROR]", error); // Log the error for debugging
 
         // Handle specific OpenAI errors if needed (e.g., rate limits, auth)
-        if (error.response) {
-             console.error("OpenAI Error Status:", error.response.status);
-             console.error("OpenAI Error Data:", error.response.data);
+        if (error && typeof error === 'object' && 'response' in error) {
+            console.error("OpenAI Error Status:", (error as {response: {status: number, data: unknown}}).response.status);
+            console.error("OpenAI Error Data:", (error as {response: {status: number, data: unknown}}).response.data);
         }
 
         // Return a generic internal server error response
         return NextResponse.json(
-            { error: 'An internal server error occurred.', details: error.message },
+            { error: 'An internal server error occurred.', details: error instanceof Error ? error.message : String(error) },
             { status: 500 }
         );
     }

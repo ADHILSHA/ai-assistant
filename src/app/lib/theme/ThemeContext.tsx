@@ -88,7 +88,7 @@ const getDefaultTheme = (): Theme => {
     }
     
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  } catch (e) {
+  } catch {
     return 'light';
   }
 };

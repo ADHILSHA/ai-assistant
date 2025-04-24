@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction, current } from '@reduxjs/toolkit'; // Import 'current' for debugging if needed
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 // Define the ChatMessage interface (ensure this matches the hook's interface)
 export interface ChatMessage {

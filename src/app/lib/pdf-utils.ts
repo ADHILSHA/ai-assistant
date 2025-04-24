@@ -47,7 +47,6 @@ export const containsItinerary = (content: string): boolean => {
   const lowerContent = content.toLowerCase();
   
   // Check for structural markers
-  const hasDayStructure = /day\s*\d+/i.test(content) || /day\s*[one|two|three|four|five]/i.test(content);
   const hasNumberedList = /^\s*\d+\.\s/m.test(content);
   const hasBulletPoints = /^\s*[\*\-•]\s/m.test(content);
   
@@ -180,9 +179,8 @@ export const generatePdfFromElement = async (element: HTMLElement, title: string
     const canvas = await html2canvas(wrapper, {
       useCORS: true,
       logging: false,
-      backgroundColor: '#ffffff',
-      scale: 2
-    } as any);
+      background: '#ffffff'
+    } as Record<string, unknown>);
     
     // Remove the temporary elements
     document.body.removeChild(wrapper);

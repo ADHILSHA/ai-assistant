@@ -1,4 +1,4 @@
-import React, { FormEvent, ChangeEvent, useState, useEffect, useRef } from 'react';
+import React, { FormEvent, ChangeEvent, useRef } from 'react';
 import { useVoiceRecognition } from '../../../lib/hooks/useVoiceRecognition';
 import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa';
 
@@ -17,28 +17,13 @@ export default function ChatInput({
   handleSubmit,
   setInput,
 }: ChatInputProps) {
-  const [isMobileDevice, setIsMobileDevice] = useState(false);
+ 
   const previousTranscriptRef = useRef<string>("");
-
-  // Detect if it's a mobile device
-  useEffect(() => {
-    const checkIfMobile = () => {
-      const userAgent = 
-        typeof window.navigator === "undefined" ? "" : navigator.userAgent;
-      const mobile = Boolean(
-        userAgent.match(/Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i)
-      );
-      setIsMobileDevice(mobile);
-    };
-    
-    checkIfMobile();
-  }, []);
 
   // Integrate voice recognition
   const { 
     isListening, 
     toggleListening, 
-    transcript, 
     isSupported 
   } = useVoiceRecognition({
     onResult: (result) => {
@@ -49,17 +34,6 @@ export default function ChatInput({
       }
     },
   });
-
-  // Create a synthetic event for submitting the form
-  const submitVoiceInput = () => {
-    if (transcript && setInput) {
-      const syntheticEvent = {
-        preventDefault: () => {},
-      } as FormEvent<HTMLFormElement>;
-      
-      handleSubmit(syntheticEvent);
-    }
-  };
 
   return (
     <form onSubmit={handleSubmit} className="flex items-center space-x-2">

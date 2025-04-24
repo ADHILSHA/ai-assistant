@@ -52,6 +52,16 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Add smooth transition for theme loading */
+html.theme-loaded body {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0.99; }
+  to { opacity: 1; }
+}
+
 /* Enhanced dark mode overrides */
 .dark .bg-white {
   background-color: var(--card-bg) !important;

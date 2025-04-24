@@ -16,11 +16,8 @@
       console.log('Theme script: Applied light theme');
     }
     
-    // Force repaint to avoid flash of unstyled content
-    document.body.style.opacity = '0.99';
-    setTimeout(function() {
-      document.body.style.opacity = '1';
-    }, 50);
+    // Add a class instead of directly setting style to avoid hydration errors
+    document.documentElement.classList.add('theme-loaded');
     
   } catch (e) {
     console.error('Error initializing theme:', e);
