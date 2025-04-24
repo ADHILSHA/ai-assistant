@@ -1,84 +1,80 @@
 'use client';
 
-import Link from 'next/link';
-import { useChatHistory, ChatHistoryItem } from './lib/hooks/useChatHistory';
 import { useRouter } from 'next/navigation';
+import { useChatHistory } from './lib/hooks/useChatHistory';
+import Header from './components/chat/Header';
+import ActionButton from './components/home/ActionButton';
+import ChatList from './components/home/ChatList';
+import Footer from './components/home/Footer';
+import { useAppDispatch } from './lib/redux/hooks';
+import { loadChat } from './lib/redux/chatSlice';
 
 export default function HomePage() {
   const { history, deleteChat } = useChatHistory();
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const handleStartNewChat = () => {
     router.push('/chat');
   };
 
+  // This uses the dispatch directly to ensure state is updated before navigation
+  const handleContinueChat = (chatId: string) => {
+    // Dispatch directly to ensure state change happens before navigation
+    dispatch(loadChat(chatId));
+    // Add a small delay to ensure redux state updates before navigation
+    setTimeout(() => {
+      router.push('/chat');
+    }, 50);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-white shadow-sm p-6">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900">AI Chat Assistant</h1>
-          <p className="mt-1 text-lg text-gray-600">Your virtual travel and gift recommendation assistant</p>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+      <Header isHomePage={true} />
 
       <main className="flex-grow max-w-7xl mx-auto py-12 px-6 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <button
-            onClick={handleStartNewChat}
-            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-lg shadow-md"
-          >
-            Start a New Chat
-          </button>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4" style={{ color: 'var(--foreground)' }}>
+            Your Personal Recommendation Assistant ✨
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-white max-w-3xl mx-auto mb-8" style={{ color: 'var(--foreground)' }}>
+            Get personalized suggestions for travel itineraries, gift ideas, and more!
+          </p>
+          <ActionButton 
+            onClick={handleStartNewChat} 
+            label="Start a New Chat" 
+            icon="✉️"
+          />
         </div>
 
-        {history.length > 0 && (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Recent Conversations</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {history.map((chat: ChatHistoryItem) => (
-                <div
-                  key={chat.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                >
-                  <div className="p-5 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-800 truncate">
-                      {chat.title}
-                    </h3>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {new Date(chat.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="p-4 text-sm text-gray-600 bg-gray-50">
-                    <p className="truncate">
-                      {chat.messages[0].content}
-                    </p>
-                  </div>
-                  <div className="flex p-4 bg-white justify-between">
-                    <Link
-                      href={`/chat`}
-                      className="text-blue-600 hover:text-blue-800 font-medium text-sm"
-                    >
-                      Continue Chat
-                    </Link>
-                    <button
-                      onClick={() => deleteChat(chat.id)}
-                      className="text-red-600 hover:text-red-800 text-sm"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
+        {history.length === 0 ? (
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer" onClick={() => router.push('/chat')}>
+              <div className="text-3xl mb-4">✈️</div>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white" style={{ color: 'var(--foreground)' }}>Travel Itineraries</h3>
+              <p className="text-gray-600 dark:text-white" style={{ color: 'var(--foreground)' }}>
+                Get customized travel plans for any destination. Just tell me where you want to go!
+              </p>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer" onClick={() => router.push('/chat')}>
+              <div className="text-3xl mb-4">🎁</div>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white" style={{ color: 'var(--foreground)' }}>Gift Recommendations</h3>
+              <p className="text-gray-600 dark:text-white" style={{ color: 'var(--foreground)' }}>
+                Find the perfect gift for any occasion, person, or budget.
+              </p>
             </div>
           </div>
+        ) : (
+          <ChatList 
+            history={history}
+            onContinueChat={handleContinueChat}
+            onDeleteChat={deleteChat}
+          />
         )}
       </main>
 
-      <footer className="bg-white border-t border-gray-200 py-6">
-        <div className="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
-          © {new Date().getFullYear()} AI Chat Assistant - All rights reserved
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
