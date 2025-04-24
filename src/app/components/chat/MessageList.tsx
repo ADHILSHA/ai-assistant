@@ -1,13 +1,15 @@
 import React, { useRef, useEffect } from 'react';
 import Message from './Message';
 import { Message as AIMessage } from '@ai-sdk/react';
+import PromptButtons from './PromptButtons';
 
 type MessageListProps = {
   messages: AIMessage[];
   isLoading: boolean;
+  onSelectPrompt?: (prompt: string) => void;
 };
 
-export default function MessageList({ messages, isLoading }: MessageListProps) {
+export default function MessageList({ messages, isLoading, onSelectPrompt }: MessageListProps) {
   // Ref for the scrollable messages container
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -37,8 +39,14 @@ export default function MessageList({ messages, isLoading }: MessageListProps) {
           />
         ))
       ) : (
-        <div className="text-center text-gray-500 mt-10">
-          Start the conversation by typing below...
+        <div className="flex flex-col items-center justify-center h-full">
+          {onSelectPrompt ? (
+            <PromptButtons onSelectPrompt={onSelectPrompt} />
+          ) : (
+            <div className="text-center text-gray-500">
+              Start the conversation by typing below...
+            </div>
+          )}
         </div>
       )}
 

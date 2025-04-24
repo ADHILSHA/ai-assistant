@@ -18,7 +18,7 @@ export default function ChatInput({
       <input
         className="flex-grow w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
         value={input}
-        placeholder="Ask about travel plans or gift ideas..."
+        placeholder="Type your message or use the buttons above ✨"
         onChange={handleInputChange}
         disabled={isLoading}
         aria-label="Chat input"

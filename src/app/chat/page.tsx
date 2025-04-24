@@ -39,7 +39,8 @@ export default function ChatPage() {
     handleSubmit: aiHandleSubmit, 
     isLoading, 
     error,
-    setMessages
+    setMessages,
+    setInput
   } = useChat({
     api: '/api/v1/chat',
   });
@@ -136,6 +137,20 @@ export default function ChatPage() {
     await aiHandleSubmit(e);
   };
 
+  // Handle prompt button selection
+  const handlePromptSelect = async (promptText: string) => {
+    // Set the input field with the selected prompt
+    setInput(promptText);
+    
+    // Create a synthetic form event to submit
+    const syntheticEvent = {
+      preventDefault: () => {},
+    } as React.FormEvent<HTMLFormElement>;
+    
+    // Submit the form with the selected prompt
+    await handleSubmit(syntheticEvent);
+  };
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Pass isOpen and onClose props to ChatSidebar */}
@@ -148,7 +163,11 @@ export default function ChatPage() {
         {/* Pass onToggleSidebar prop to Header */}
         <Header onToggleSidebar={toggleSidebar} />
         
-        <MessageList messages={messages} isLoading={isLoading} />
+        <MessageList 
+          messages={messages} 
+          isLoading={isLoading} 
+          onSelectPrompt={handlePromptSelect}
+        />
         
         <footer className="p-4 bg-white border-t border-gray-200 shadow-inner">
           {error && <ErrorMessage message={error.message} />}
