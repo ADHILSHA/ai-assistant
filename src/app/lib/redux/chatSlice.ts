@@ -58,6 +58,9 @@ export const chatSlice = createSlice({
       state.history.unshift(newChat);
       state.currentChatId = chatId;
     },
+    clearCurrentChat: (state) => {
+      state.currentChatId = null;
+    },
     addMessageToChat: (state, action: PayloadAction<ChatMessage>) => {
       if (state.currentChatId) {
         const chat = state.history.find(c => c.id === state.currentChatId);
@@ -95,6 +98,7 @@ export const {
   addMessageToChat, 
   loadChat, 
   deleteChat,
-  clearAllChats 
+  clearAllChats,
+  clearCurrentChat
 } = chatSlice.actions;
 export default chatSlice.reducer; 

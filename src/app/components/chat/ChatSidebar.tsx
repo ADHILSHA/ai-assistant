@@ -3,7 +3,7 @@
 import { useChatHistory, ChatHistoryItem } from '../../lib/hooks/useChatHistory';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch } from '../../lib/redux/hooks';
-import { clearAllChats } from '../../lib/redux/chatSlice';
+import { clearAllChats, clearCurrentChat } from '../../lib/redux/chatSlice';
 
 export default function ChatSidebar() {
   const { history, currentChatId, loadChat, deleteChat } = useChatHistory();
@@ -22,6 +22,8 @@ export default function ChatSidebar() {
   };
 
   const handleNewChat = () => {
+    // Use the dedicated action instead of manually dispatching
+    dispatch(clearCurrentChat());
     router.push('/chat');
   };
 

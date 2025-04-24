@@ -64,8 +64,8 @@ export default function ChatPage() {
         const aiMessages = currentMessages.map(mapToAIMessage);
         setMessages(aiMessages);
       }
-    } else if (messages.length > 0) {
-      // Only clear messages if we need to (no current chat but we have messages shown)
+    } else {
+      // If currentChatId is null (new chat), clear the messages
       setMessages([]);
     }
   }, [currentChatId, currentMessages, setMessages]);
