@@ -31,8 +31,8 @@ A modern, AI-powered recommendation system built with Next.js that specializes i
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/recommendation-bot.git
-cd recommendation-bot
+git clone https://github.com/ADHILSHA/ai-assistant.git
+cd ai-assistant
 
 # Install dependencies
 npm install
