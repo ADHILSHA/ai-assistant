@@ -8,7 +8,7 @@ import ChatInput from '../components/chat/ChatInput';
 import ErrorMessage from '../components/chat/ErrorMessage';
 import ChatSidebar from '../components/chat/ChatSidebar';
 import { useChatHistory, ChatMessage } from '../lib/hooks/useChatHistory';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Convert our ChatMessage to AI SDK Message format
 const mapToAIMessage = (chatMessage: ChatMessage): Message => ({
@@ -22,6 +22,14 @@ export default function ChatPage() {
   // To track when we're expecting a response
   const waitingForResponseRef = useRef(false);
   const initialRenderRef = useRef(true);
+  
+  // Add state for sidebar visibility on mobile
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // Toggle sidebar function
+  const toggleSidebar = () => {
+    setIsSidebarOpen(prev => !prev);
+  };
   
   // Initialize chat with AI SDK
   const { 
@@ -118,6 +126,9 @@ export default function ChatPage() {
       addMessageToChat(userMessage);
     }
 
+    // Close sidebar on mobile when submitting a message
+    setIsSidebarOpen(false);
+
     // Mark that we're waiting for a response
     waitingForResponseRef.current = true;
     
@@ -127,10 +138,15 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <ChatSidebar />
+      {/* Pass isOpen and onClose props to ChatSidebar */}
+      <ChatSidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+      />
       
       <div className="flex flex-col flex-grow h-screen">
-        <Header />
+        {/* Pass onToggleSidebar prop to Header */}
+        <Header onToggleSidebar={toggleSidebar} />
         
         <MessageList messages={messages} isLoading={isLoading} />
         
