@@ -24,6 +24,8 @@ export default function ChatPage() {
   const initialRenderRef = useRef(true);
   // Add a ref to track the last processed message ID
   const lastProcessedMessageIdRef = useRef<string | null>(null);
+  // Add ref to track last loaded chat ID to prevent duplicate loads
+  const lastLoadedChatIdRef = useRef<string | null>(null);
   
   // Add state for sidebar visibility on mobile
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -68,28 +70,39 @@ export default function ChatPage() {
       return;
     }
     
+    // Prevent duplicate loads of the same chat
+    if (currentChatId === lastLoadedChatIdRef.current) {
+      return;
+    }
+    
     // Only update messages if we have a current chat
     if (currentChatId) {
       if (currentMessages.length > 0) {
         // If there are messages in this chat, convert and set them
         const aiMessages = currentMessages.map(mapToAIMessage);
         setMessages(aiMessages);
+        lastLoadedChatIdRef.current = currentChatId;
       }
     } else {
       // If currentChatId is null (new chat), clear the messages
       setMessages([]);
+      lastLoadedChatIdRef.current = null;
     }
   }, [currentChatId, currentMessages, setMessages]);
 
   // Effect to capture assistant responses and save them to our store
   useEffect(() => {
+    // If we're not waiting for a response, don't process anything
+    if (!waitingForResponseRef.current || isLoading) {
+      return;
+    }
+
     // If we have messages and we're done loading, check for an assistant message
-    if (messages.length > 0 && !isLoading) {
+    if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
       
-      // If the last message is from the assistant and we're waiting for a response
-      // Only process messages when we're actually waiting for a response
-      if (lastMessage.role === 'assistant' && waitingForResponseRef.current) {
+      // If the last message is from the assistant
+      if (lastMessage.role === 'assistant') {
         // Check if we've already processed this message
         if (lastMessage.id !== lastProcessedMessageIdRef.current) {
           console.log('Saving assistant message to chat store:', lastMessage);
@@ -156,7 +169,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
       {/* Pass isOpen and onClose props to ChatSidebar */}
       <ChatSidebar 
         isOpen={isSidebarOpen} 
@@ -165,7 +178,7 @@ export default function ChatPage() {
       
       <div className="flex flex-col flex-grow h-screen overflow-hidden">
         {/* Pass onToggleSidebar prop to Header */}
-        <Header onToggleSidebar={toggleSidebar} />
+        <Header onToggleSidebar={toggleSidebar} isHomePage={false} />
         
         <div className="flex-grow overflow-hidden">
           <MessageList 
@@ -175,7 +188,7 @@ export default function ChatPage() {
           />
         </div>
         
-        <footer className="p-4 bg-white border-t border-gray-200 shadow-inner flex-shrink-0">
+        <footer className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-inner flex-shrink-0">
           {error && <ErrorMessage message={error.message} />}
           <ChatInput 
             input={input}

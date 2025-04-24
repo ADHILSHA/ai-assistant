@@ -81,14 +81,14 @@ export default function MessageList({ messages, isLoading, onSelectPrompt }: Mes
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-full max-h-full overflow-hidden">
+    <div className="flex flex-col h-full max-h-full overflow-hidden bg-gray-50 dark:bg-gray-900" style={{ backgroundColor: 'var(--background)' }}>
       {/* Auto-speak toggle button */}
       {isSpeechSupported && (
         <div className="flex justify-end p-2 flex-shrink-0">
           <button 
             onClick={toggleAutoSpeak}
             className={`p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              autoSpeak ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+              autoSpeak ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'
             }`}
             aria-label={autoSpeak ? "Turn off auto-speak" : "Turn on auto-speak"}
             title={autoSpeak ? "Turn off auto-speak" : "Turn on auto-speak"}
@@ -118,7 +118,7 @@ export default function MessageList({ messages, isLoading, onSelectPrompt }: Mes
             {onSelectPrompt ? (
               <PromptButtons onSelectPrompt={onSelectPrompt} />
             ) : (
-              <div className="text-center text-gray-500">
+              <div className="text-center text-gray-500 dark:text-gray-400">
                 Start the conversation by typing below...
               </div>
             )}
@@ -128,11 +128,11 @@ export default function MessageList({ messages, isLoading, onSelectPrompt }: Mes
         {/* Display loading indicator */}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-lg shadow bg-white text-gray-800 border border-gray-200">
+            <div className="max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-lg shadow bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', color: 'var(--foreground)' }}>
               <span className="block text-sm font-medium mb-1 capitalize">
                 Assistant
               </span>
-              <p className="text-sm text-gray-500 animate-pulse">Thinking...</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 animate-pulse">Thinking...</p>
             </div>
           </div>
         )}

@@ -1,8 +1,40 @@
 @import "tailwindcss";
 
+/* Light mode variables */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --sidebar-bg: #f9fafb;
+  --card-bg: #ffffff;
+  --border-color: #e5e7eb;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --hover-light: #f3f4f6;
+  --button-bg: #2563eb;
+  --button-hover: #1d4ed8;
+  --history-hover-bg: #f3f4f6;
+  --history-hover-text: #111827;
+  --history-active-bg: #dbeafe;
+  --history-active-text: #1e40af;
+}
+
+/* Dark mode variables - applied when .dark class is on html element */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --sidebar-bg: #111827;
+  --card-bg: #1f2937;
+  --border-color: #374151;
+  --input-bg: #1f2937;
+  --input-border: #4b5563;
+  --hover-light: #2d3748;
+  --button-bg: #2563eb;
+  --button-hover: #1d4ed8;
+  --history-hover-bg: #374151;
+  --history-hover-text: #e5e7eb;
+  --history-active-bg: #1e3a8a;
+  --history-active-text: #e5e7eb;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -12,15 +44,84 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Base body styling */
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Enhanced dark mode overrides */
+.dark .bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: var(--sidebar-bg) !important;
+}
+
+.dark .text-gray-800 {
+  color: var(--foreground) !important;
+}
+
+.dark .border-gray-200 {
+  border-color: var(--border-color) !important;
+}
+
+.dark input, .dark textarea, .dark select {
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--foreground);
+}
+
+.dark button:not(.bg-blue-600):not(.bg-red-500):not(.bg-red-600) {
+  background-color: var(--card-bg);
+  color: var(--foreground);
+}
+
+.dark button:not(.bg-blue-600):not(.bg-red-500):not(.bg-red-600):hover {
+  background-color: var(--hover-light);
+}
+
+/* Fix text color in dark mode */
+.dark .text-gray-600,
+.dark .text-gray-700,
+.dark .text-gray-800,
+.dark .text-gray-900 {
+  color: var(--foreground) !important;
+}
+
+/* Chat history styling */
+.chat-history-item {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.chat-history-item:hover {
+  background-color: var(--history-hover-bg);
+  color: var(--history-hover-text);
+}
+
+.chat-history-item.active {
+  background-color: var(--history-active-bg);
+  color: var(--history-active-text);
+}
+
+.dark .chat-history-item {
+  color: var(--foreground);
+}
+
+.dark .chat-history-item:hover {
+  background-color: var(--history-hover-bg);
+  color: var(--history-hover-text);
+}
+
+.dark .chat-history-item.active {
+  background-color: var(--history-active-bg);
+  color: var(--history-active-text);
+}
+
+/* Debugging utility */
+.theme-updated {
+  opacity: 0.99; /* Force a repaint */
 }

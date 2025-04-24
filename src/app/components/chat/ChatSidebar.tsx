@@ -68,8 +68,8 @@ export default function ChatSidebar({ isOpen = false, onClose }: { isOpen?: bool
   const sidebarClasses = isMobile
     ? `fixed inset-y-0 left-0 transform ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
-      } w-64 transition-transform duration-300 ease-in-out z-30 bg-gray-50 border-r border-gray-200 overflow-y-auto h-screen`
-    : 'w-64 border-r border-gray-200 bg-gray-50 h-screen overflow-y-auto';
+      } w-64 transition-transform duration-300 ease-in-out z-30 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-y-auto h-screen`
+    : 'w-64 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 h-screen overflow-y-auto';
 
   // Add overlay for mobile
   const overlayClasses = isMobile && isOpen
@@ -80,16 +80,22 @@ export default function ChatSidebar({ isOpen = false, onClose }: { isOpen?: bool
     <>
       <button
         onClick={handleNewChat}
-        className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        className="w-full cursor-pointer py-2.5 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 shadow-sm"
       >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 5v14M5 12h14"></path>
+        </svg>
         New Chat
       </button>
       
       <div className="mt-4">
         <button
           onClick={handleClearAllChats}
-          className="w-full py-1 px-2 bg-red-500 text-white text-sm rounded-md hover:bg-red-600"
+          className="w-full cursor-pointer py-2 px-3 border border-gray-400/40 text-gray-600 dark:text-gray-300 text-sm rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-center gap-1.5"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+          </svg>
           Clear All History
         </button>
       </div>
@@ -98,19 +104,22 @@ export default function ChatSidebar({ isOpen = false, onClose }: { isOpen?: bool
         <div className="mt-4">
           <button
             onClick={onClose}
-            className="w-full py-1 px-2 bg-gray-200 text-gray-800 text-sm rounded-md hover:bg-gray-300"
+            className="w-full py-2 px-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-1.5"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18M6 6l12 12"></path>
+            </svg>
             Close Menu
           </button>
         </div>
       )}
       
       <div className="mt-6">
-        <h2 className="text-sm font-medium text-gray-500 mb-2">
+        <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
           Chat History ({uniqueChats.length})
         </h2>
         {uniqueChats.length === 0 ? (
-          <div className="text-gray-500 text-sm text-center">
+          <div className="text-gray-500 dark:text-gray-400 text-sm text-center">
             No chat history yet
           </div>
         ) : (
@@ -120,19 +129,27 @@ export default function ChatSidebar({ isOpen = false, onClose }: { isOpen?: bool
                 key={`chat-${chat.id}`}
                 onClick={() => handleSelectChat(chat.id)}
                 className={`
-                  flex justify-between items-center p-2 rounded-md cursor-pointer
-                  ${currentChatId === chat.id ? 'bg-blue-100' : 'hover:bg-gray-100'}
+                  flex justify-between items-center p-2 rounded-md cursor-pointer chat-history-item
+                  ${currentChatId === chat.id 
+                    ? 'active' 
+                    : ''}
                 `}
+                style={{
+                  backgroundColor: currentChatId === chat.id ? 'var(--history-active-bg)' : 'transparent',
+                  color: currentChatId === chat.id ? 'var(--history-active-text)' : 'var(--foreground)'
+                }}
               >
                 <div className="truncate flex-1">
-                  <p className="text-sm font-medium">{chat.title}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-sm font-medium"
+                     style={{ color: 'inherit' }}>{chat.title}</p>
+                  <p className="text-xs opacity-75"
+                     style={{ color: 'inherit' }}>
                     {new Date(chat.createdAt).toLocaleDateString()}
                   </p>
                 </div>
                 <button 
                   onClick={(e) => handleDeleteChat(chat.id, e)}
-                  className="text-gray-400 hover:text-red-500 p-1"
+                  className="text-gray-400 hover:text-red-500 p-1 cursor-pointer"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M3 6h18"></path>
@@ -158,7 +175,7 @@ export default function ChatSidebar({ isOpen = false, onClose }: { isOpen?: bool
       )}
       
       {/* Sidebar with content */}
-      <div className={sidebarClasses}>
+      <div className={sidebarClasses} style={{ backgroundColor: 'var(--sidebar-bg)', borderColor: 'var(--border-color)' }}>
         <div className="p-4">
           {sidebarContent}
         </div>

@@ -62,17 +62,18 @@ function MessageComponent({ role, content, onSpeakMessage, isSpeaking, id }: Mes
       <div
         className={`
           max-w-xs md:max-w-md lg:max-w-2xl px-4 py-3 rounded-lg shadow
-          ${isUser ? 'bg-blue-500 text-white' : 'bg-white text-gray-800 border border-gray-200'}
+          ${isUser ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700'}
           ${!isUser && (showDownloadButton || onSpeakMessage) ? 'relative pb-12' : ''}
           overflow-hidden break-words
         `}
+        style={!isUser ? { backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)', color: 'var(--foreground)' } : {}}
       >
         <span className="block text-sm font-medium mb-2 capitalize">
           {isUser ? 'You' : 'Assistant'}
         </span>
         <div 
           ref={contentRef}
-          className={`text-sm ${isUser ? 'prose-invert' : 'prose'} prose-sm max-w-none break-words`}
+          className={`text-sm ${isUser ? 'prose-invert' : 'prose dark:prose-invert'} prose-sm max-w-none break-words`}
           style={{ wordWrap: 'break-word' }}
         >
           <ReactMarkdown
@@ -85,18 +86,18 @@ function MessageComponent({ role, content, onSpeakMessage, isSpeaking, id }: Mes
               ul: ({node, ...props}: MarkdownComponentProps) => <ul className="list-disc pl-5 my-2" {...props} />,
               ol: ({node, ...props}: MarkdownComponentProps) => <ol className="list-decimal pl-5 my-2" {...props} />,
               li: ({node, ...props}: MarkdownComponentProps) => <li className="my-1" {...props} />,
-              a: ({node, ...props}: MarkdownComponentProps) => <a className={`${isUser ? 'text-blue-200' : 'text-blue-600'} hover:underline`} {...props} />,
+              a: ({node, ...props}: MarkdownComponentProps) => <a className={`${isUser ? 'text-blue-200' : 'text-blue-600 dark:text-blue-400'} hover:underline`} {...props} />,
               strong: ({node, ...props}: MarkdownComponentProps) => <strong className="font-bold" {...props} />,
-              blockquote: ({node, ...props}: MarkdownComponentProps) => <blockquote className="border-l-4 border-gray-300 pl-3 my-2" {...props} />,
+              blockquote: ({node, ...props}: MarkdownComponentProps) => <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-3 my-2" {...props} />,
               code: ({node, inline, ...props}: MarkdownComponentProps) => 
                 inline 
-                  ? <code className={`px-1 py-0.5 rounded ${isUser ? 'bg-blue-600 text-blue-100' : 'bg-gray-100 text-gray-800'}`} {...props} />
-                  : <code className={`block p-2 rounded my-2 ${isUser ? 'bg-blue-600 text-blue-100' : 'bg-gray-100 text-gray-800'} overflow-x-auto`} {...props} />,
-              pre: ({node, ...props}: MarkdownComponentProps) => <pre className={`rounded p-0 my-2 ${isUser ? 'bg-blue-600' : 'bg-gray-100'} overflow-x-auto`} {...props} />,
-              hr: ({node, ...props}: MarkdownComponentProps) => <hr className="my-3 border-t border-gray-300" {...props} />,
+                  ? <code className={`px-1 py-0.5 rounded ${isUser ? 'bg-blue-600 text-blue-100' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`} {...props} />
+                  : <code className={`block p-2 rounded my-2 ${isUser ? 'bg-blue-600 text-blue-100' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'} overflow-x-auto`} {...props} />,
+              pre: ({node, ...props}: MarkdownComponentProps) => <pre className={`rounded p-0 my-2 ${isUser ? 'bg-blue-600' : 'bg-gray-100 dark:bg-gray-700'} overflow-x-auto`} {...props} />,
+              hr: ({node, ...props}: MarkdownComponentProps) => <hr className="my-3 border-t border-gray-300 dark:border-gray-700" {...props} />,
               table: ({node, ...props}: MarkdownComponentProps) => <table className="border-collapse table-auto w-full text-xs my-2" {...props} />,
-              th: ({node, ...props}: MarkdownComponentProps) => <th className={`border py-1 px-2 ${isUser ? 'border-blue-400' : 'border-gray-300'}`} {...props} />,
-              td: ({node, ...props}: MarkdownComponentProps) => <td className={`border py-1 px-2 ${isUser ? 'border-blue-400' : 'border-gray-300'}`} {...props} />
+              th: ({node, ...props}: MarkdownComponentProps) => <th className={`border py-1 px-2 ${isUser ? 'border-blue-400' : 'border-gray-300 dark:border-gray-600'}`} {...props} />,
+              td: ({node, ...props}: MarkdownComponentProps) => <td className={`border py-1 px-2 ${isUser ? 'border-blue-400' : 'border-gray-300 dark:border-gray-600'}`} {...props} />
             }}
           >
             {displayContent}
