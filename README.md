@@ -19,6 +19,7 @@ A modern, AI-powered recommendation system built with Next.js that specializes i
 - **State Management**: Redux
 - **Chat History**: Local storage persistence
 - **Voice Recognition**: Web Speech API for voice input and output
+- **Testing**: Jest and React Testing Library
 
 ## Getting Started
 
@@ -31,8 +32,8 @@ A modern, AI-powered recommendation system built with Next.js that specializes i
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/recommendation-bot.git
-cd recommendation-bot
+git clone https://github.com/ADHILSHA/ai-assistant.git
+cd ai-assistant
 
 # Install dependencies
 npm install
@@ -53,6 +54,26 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+## Testing
+
+To run the test suite:
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Generate test coverage report
+npm run test:coverage
+```
+
+The test suite includes:
+- Unit tests for core components
+- API route tests
+- Utility function tests
 
 ## Usage
 
